@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Stripe = require("stripe");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
+    apiVersion: "2024-06-20",
 });
 const auth = require('../middleware/authMiddleware');
 
@@ -28,6 +28,8 @@ router.post('/create-checkout-session', auth, async (req, res) => {
             return res.status(400).json({ msg: 'Invalid plan ID' });
         }
 
+        const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -43,8 +45,8 @@ router.post('/create-checkout-session', auth, async (req, res) => {
                 },
             ],
             mode: 'payment', // or 'subscription' if you want recurring
-            success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `http://localhost:5173/payment-cancel`,
+            success_url: `${clientUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${clientUrl}/payment-cancel`,
         });
 
         res.json({ id: session.id, url: session.url });

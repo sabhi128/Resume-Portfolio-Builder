@@ -36,6 +36,11 @@ app.use('/api/resumes', require('./routes/resumes'));
 app.use('/api/portfolio', require('./routes/portfolio'));
 app.use('/api/payment', require('./routes/payment'));
 
-// ❌ REMOVE app.listen()
+// Local development support
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+}
+
 // module export for Vercel
 module.exports = app;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { createCheckoutSession } from '../api/resumeApi';
 
 // Replace with your actual publishable key or environment variable
 // In a real app, use import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -18,20 +18,17 @@ const Checkout = () => {
         const stripe = await stripePromise;
 
         try {
-            const token = localStorage.getItem('token');
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-auth-token': token
-                }
-            };
+            // We don't need to manually handle token here as resumeApi instance has interceptor
+            // But createCheckoutSession might need clean arguments.
+            // Wait, createCheckoutSession in resumeApi.js handles the call.
+            // And the interceptor in resumeApi.js handles the token.
 
             const body = { planId };
 
-            const response = await axios.post('https://backend-resume-builder.vercel.app/api/payment/create-checkout-session', body, config);
+            const data = await createCheckoutSession(body);
 
-            if (response.data.url) {
-                window.location.href = response.data.url;
+            if (data.url) {
+                window.location.href = data.url;
             } else {
                 console.error("No checkout URL returned from backend");
             }

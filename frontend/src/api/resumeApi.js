@@ -9,11 +9,22 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000/
 // Let's assume .env has the root.
 
 const getBaseUrl = () => {
-    let url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-    if (!url.endsWith('/api')) {
-        url += '/api';
+    // If a specific backend URL is provided via environment variables, use it.
+    if (import.meta.env.VITE_BACKEND_URL) {
+        let url = import.meta.env.VITE_BACKEND_URL;
+        if (!url.endsWith('/api')) {
+            url += '/api';
+        }
+        return url;
     }
-    return url;
+
+    // In development, default to localhost if no env var is set
+    if (import.meta.env.DEV) {
+        return 'http://localhost:5000/api';
+    }
+
+    // In production (unified deployment), use relative path
+    return '/api';
 };
 
 // Create axios instance
@@ -89,6 +100,17 @@ export const deleteResume = async (id) => {
         return response.data;
     } catch (error) {
         console.error('Error deleting resume:', error);
+        throw error;
+    }
+};
+
+// Create Checkout Session
+export const createCheckoutSession = async (data) => {
+    try {
+        const response = await api.post('/payment/create-checkout-session', data);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating checkout session:', error);
         throw error;
     }
 };
